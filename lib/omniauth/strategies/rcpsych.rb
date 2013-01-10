@@ -1,25 +1,40 @@
-require 'omniauth-oauth'
+#require 'omniauth-oauth'
+require 'omniauth'
 require 'multi_json'
 
 module OmniAuth
   module Strategies
-    #
-    # Authenticate to Rdio via OAuth and retrieve basic user information.
-    # Usage:
-    #    use OmniAuth::Strategies::Rdio, 'consumerkey', 'consumersecret'
-    #
-    class RCPsych < OmniAuth::Strategies::OAuth
+    class RCPsych 
+      include OmniAuth::Strategy
 
-def initialize(app, consumer_key = nil, consumer_secret = nil, options = {}, &block)
-  opts = {
-    :site               => "http://www.webtest.rcpsych.ac.uk/RCP60/sp3rd.aspx?Returnurl=[xyz]&SPTo ken=[pqrst]",
-    :request_token_path => "/oauth/request_token",
-    :access_token_path  => "/oauth/access_token",
-    :authorize_url      => "https://www.rdio.com/oauth/authorize"
-  }
-  super(app, :rdio, consumer_key, consumer_secret, opts, options, &block)
-end
+        args [:sptoken]
 
+        option :name, 'rcpsych'
+        
+        uid {
+          '12345'
+        }
+        
+        info do 
+          {
+          :first_name => 'hello',
+          :last_name => 'world'          
+          }
+        end
+        
+        extra do 
+          { 'raw_info' => raw_info }
+        end
+        
+        def request_phase
+          redirect "http://www.webtest.rcpsych.ac.uk/RCP60/sp3rd.aspx?SPToken=#{options.sptoken}"
+        end
+
+        def callback_phase
+          raise access_token.inspect
+        end
+  
     end
   end
 end
+OmniAuth.config.add_camelization('rcpsych', 'RCPsych')
