@@ -10,5 +10,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency 'multi_json', '~> 1.3'
+  s.add_dependency 'savon'
   s.add_runtime_dependency 'omniauth-oauth', '~> 1.0'
 end
