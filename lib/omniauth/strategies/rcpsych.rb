@@ -11,17 +11,16 @@ module OmniAuth
         args [:sptoken]
 
         option :name, 'rcpsych'
+        option :fields, [:conceptid,:rcpencryption]
         
-        uid {
-          access_token["conceptid"]
-        }
+        uid { options.concept_id }
         
         info do 
-          nil
+          { 'name' => "Unknown" }
         end
         
         extra do 
-          { 'raw_info' => nil }
+          { 'raw_info' => {} }
         end
         
         def request_phase
@@ -29,12 +28,13 @@ module OmniAuth
         end
 
         def callback_phase
-          
-          access_token = { rcpencrpytion: session[:rcpencryption] }
-          session.delete :rcpencryption
+                    
+          access_token = { rcpencryption: session[:rcpencryption] }
 
           raise "Invalid RCPEncryption Token" if access_token[:rcpencryption].nil?
 
+          secret = 'XYZ'
+          
             client_endpoint = 'http://www.webtest.rcpsych.ac.uk/RCP60/plugins/crosssiteauth/rcpcrosssiteauthprovider.asmx'
             client_namespace = 'http://tempuri.org/'
   
@@ -42,7 +42,7 @@ module OmniAuth
                           <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                             <soap:Body>
                               <RetrievePersonID xmlns="http://tempuri.org/">
-                                <returnMessage>string</returnMessage>
+                                <returnMessage>' + secret + '</returnMessage>
                                 <encryptedUserInfo>' + access_token[:rcpencryption] + '</encryptedUserInfo>
                               </RetrievePersonID>
                             </soap:Body>
@@ -56,10 +56,21 @@ module OmniAuth
             raise response.soap_fault if response.soap_fault?
             raise response.http_error if response.http_error?
             
-            conceptid = xml.xpath('//retrieve_person_id_response/retrieve_person_id_result').inner_text
+            response_hash = response.to_hash
             
-            accesss_token[:conceptid] = conceptid unless conceptid.nil?
-
+            message = response_hash[:retrieve_person_id_response][:return_message]
+            
+            if message == secret
+              concept_id = response_hash[:retrieve_person_id_response][:retrieve_person_id_result]
+              raise response_hash.inspect
+              raise "No PersonID" if options.concept_id.nil?
+              options.concept_id = concept_id
+            else 
+              message.slice!(secret)
+              raise message
+            end
+            
+            super
         end
   
     end
