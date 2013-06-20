@@ -8,7 +8,7 @@ module OmniAuth
     class RCPsych 
       include OmniAuth::Strategy
 
-        args [:sptoken]
+        args [:endpoint, :sptoken]
 
         option :name, 'rcpsych'
         option :fields, [:conceptid,:rcpencryption,:secret]
@@ -24,8 +24,10 @@ module OmniAuth
         end
         
         def request_phase
-          redirect "http://www.webtest.rcpsych.ac.uk/RCP60/sp3rd.aspx?SPToken=#{options.sptoken}"
+          redirect "#{options.endpoint}?SPToken=#{options.sptoken}"
         end
+
+
 
         def callback_phase
                     
