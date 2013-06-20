@@ -27,8 +27,6 @@ module OmniAuth
           redirect "#{options.endpoint}?SPToken=#{options.sptoken}"
         end
 
-
-
         def callback_phase
                     
           access_token = { rcpencryption: session[:rcpencryption] }
@@ -37,7 +35,7 @@ module OmniAuth
 
           secret = session[:secret] = Time.now.to_f.to_s
           
-          client_endpoint = 'http://www.webtest.rcpsych.ac.uk/RCP60/plugins/crosssiteauth/rcpcrosssiteauthprovider.asmx'
+          client_endpoint = "#{options.endpoint}/plugins/crosssiteauth/rcpcrosssiteauthprovider.asmx"
           client_namespace = 'http://tempuri.org/'
 
           call_xml = '<?xml version="1.0" encoding="utf-8"?>
