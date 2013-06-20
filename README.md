@@ -1,0 +1,1 @@
+Omniauth Strategy for authentication using RCPsych member login
