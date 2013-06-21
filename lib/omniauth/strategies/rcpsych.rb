@@ -62,7 +62,7 @@ module OmniAuth
           
           if return_message == secret
             concept_id = response_hash[:retrieve_person_id_response][:retrieve_person_id_result]
-            raise "No PersonID" if concept_id.nil?
+            raise "No PersonID [#{response.inspect}]" if concept_id.nil?
             options.concept_id = concept_id
           else 
             message.slice!(secret)
