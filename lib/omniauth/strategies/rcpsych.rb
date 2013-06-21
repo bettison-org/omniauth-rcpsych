@@ -24,7 +24,7 @@ module OmniAuth
         end
         
         def request_phase
-          redirect "#{options.endpoint}?SPToken=#{options.sptoken}"
+          redirect "#{options.endpoint}/sp3rd.aspx?SPToken=#{options.sptoken}"
         end
 
         def callback_phase
@@ -34,7 +34,7 @@ module OmniAuth
           raise "Invalid RCPEncryption Token" if access_token[:rcpencryption].nil?
 
           secret = session[:secret] = Time.now.to_f.to_s
-          
+                    
           client_endpoint = "#{options.endpoint}/plugins/crosssiteauth/rcpcrosssiteauthprovider.asmx"
           client_namespace = 'http://tempuri.org/'
 
