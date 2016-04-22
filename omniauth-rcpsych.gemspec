@@ -11,5 +11,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'multi_json'
   s.add_dependency 'savon'
+  s.add_dependency 'curb'
   s.add_runtime_dependency 'omniauth-oauth', '~> 1.0'
 end
