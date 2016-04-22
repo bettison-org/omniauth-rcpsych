@@ -65,8 +65,8 @@ module OmniAuth
             raise "No PersonID [#{response.inspect}]" if concept_id.nil?
             options.concept_id = concept_id
           else 
-            message.slice!(secret)
-            raise message
+            return_message.slice!(secret)
+            raise return_message
           end
           
           super
