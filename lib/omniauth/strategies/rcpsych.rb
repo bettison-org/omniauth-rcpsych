@@ -34,24 +34,16 @@ module OmniAuth
           raise "Invalid RCPEncryption Token" if access_token[:rcpencryption].nil?
 
           secret = session[:secret] = Time.now.to_f.to_s
-                    
-          client_endpoint = "#{options.endpoint}/plugins/crosssiteauth/rcpcrosssiteauthprovider.asmx"
-          client_namespace = 'http://tempuri.org/'
 
-          call_xml = '<?xml version="1.0" encoding="utf-8"?>
-                        <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                          <soap:Body>
-                            <RetrievePersonID xmlns="http://tempuri.org/">
-                              <returnMessage>' + secret + '</returnMessage>
-                              <encryptedUserInfo>' + access_token[:rcpencryption] + '</encryptedUserInfo>
-                            </RetrievePersonID>
-                          </soap:Body>
-                        </soap:Envelope>'
+          client_wsdl = "#{options.endpoint}/plugins/crosssiteauth/rcpcrosssiteauthprovider.asmx?wsdl"
 
-          client_headers = {"Content-Length" => call_xml.length, "SOAPAction" => '"http://tempuri.org/RetrievePersonID"'}
+          client = Savon.client(wsdl: client_wsdl)
           
-          client = Savon.client(endpoint: client_endpoint, namespace: client_namespace, headers: client_headers)       
-          response = client.call("RetrievePersonID", xml: call_xml)
+          message = {}
+          message["returnMessage"] = secret
+          message["encryptedUserInfo"] = access_token[:rcpencryption]
+          
+          response = client.call(:retrieve_person_id, message: message )
 
           raise response.soap_fault if response.soap_fault?
           raise response.http_error if response.http_error?
@@ -66,7 +58,7 @@ module OmniAuth
             options.concept_id = concept_id
           else 
             return_message.slice!(secret)
-            raise return_message
+            raise "Invalid return_message: #{return_message}"
           end
           
           super
